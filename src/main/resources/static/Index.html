@@ -21,47 +21,39 @@
     }
 
     function addToQueue() {
-    var name = document.getElementById("nameInput").value;
-    fetch('/queue/add?name=' + name);
-    document.getElementById("nameInput").value = "";
-}
+        var name = document.getElementById("nameInput").value;
+        fetch('/queue/add?name=' + name);
+        document.getElementById("nameInput").value = "";
+    }
 
-function addAsSpecial() {
-    var name = document.getElementById("nameInput").value;
-    fetch('/queue/add-special?name=' + name);
-    document.getElementById("nameInput").value = "";
-}
+    function addAsSpecial() {
+        var name = document.getElementById("nameInput").value;
+        fetch('/queue/add-special?name=' + name);
+        document.getElementById("nameInput").value = "";
+    }
 
-function removeFromQueue() {
-    var name = document.getElementById("nameInput").value;
-    fetch('/queue/remove?name=' + name);
-    document.getElementById("nameInput").value = "";
-}
+    function removeFromQueue() {
+        var name = document.getElementById("nameInput").value;
+        fetch('/queue/remove?name=' + name);
+        document.getElementById("nameInput").value = "";
+    }
 
-function removeFirst() {
-    fetch('/queue/removeFirst');
+    function removeFirst() {
+        fetch('/queue/removeFirst');
+    }
 
-}
-
-function addToBreak() {
-    var name = document.getElementById("nameInput").value;
-    fetch('/queue/break/add?name=' + name);
-    document.getElementById("nameInput").value = "";
-}
-
-function removeFromBreak() {
-    var name = document.getElementById("nameInput").value;
-    fetch('/queue/break/remove?name=' + name);
-    document.getElementById("nameInput").value = "";
-}
+    function addToBreak() {
+        var name = document.getElementById("nameInput").value;
+        fetch('/queue/break/add?name=' + name);
+        document.getElementById("nameInput").value = "";
+    }
 
     function removeFromBreak() {
         var name = document.getElementById("nameInput").value;
         fetch('/queue/break/remove?name=' + name)
             .then(response => response.text())
             .then(data => alert(data));
-
-           document.getElementById("nameInput").value = "";
+        document.getElementById("nameInput").value = "";
     }
 
     function showQueue(queue) {
@@ -75,22 +67,22 @@ function removeFromBreak() {
     }
 
     function showBreak(breakQueue) {
-    var breakList = document.getElementById("breakList");
-    breakList.innerHTML = "";
-    breakQueue.forEach(function (item) {
-        var li = document.createElement("li");
-        li.textContent = item + " ";
+        var breakList = document.getElementById("breakList");
+        breakList.innerHTML = "";
+        breakQueue.forEach(function (item) {
+            var li = document.createElement("li");
+            li.textContent = item + " ";
 
-        var button = document.createElement("button");
-        button.textContent = "KOPNIJ";
-        button.onclick = function () {
-            fetch('/queue/break/remove?name=' + item);
-        };
+            var button = document.createElement("button");
+            button.textContent = "KOPNIJ";
+            button.onclick = function () {
+                fetch('/queue/break/remove?name=' + item);
+            };
 
-        li.appendChild(button);
-        breakList.appendChild(li);
-    });
-}
+            li.appendChild(button);
+            breakList.appendChild(li);
+        });
+    }
 
     window.onload = function () {
         connect();
