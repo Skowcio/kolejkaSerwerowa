@@ -1,101 +1,101 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>Queue Management</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
-  <script>
-    var stompClient = null;
+    <title>Queue Management</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script>
+        var stompClient = null;
 
-    function connect() {
-        var socket = new SockJS('/ws');
-        stompClient = Stomp.over(socket);
-        stompClient.connect({}, function (frame) {
-            stompClient.subscribe('/topic/queue', function (eventbody) {
-                showQueue(JSON.parse(eventbody.body));
+        function connect() {
+            var socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, function (frame) {
+                stompClient.subscribe('/topic/queue', function (eventbody) {
+                    showQueue(JSON.parse(eventbody.body));
+                });
+                stompClient.subscribe('/topic/break', function (eventbody) {
+                    showBreak(JSON.parse(eventbody.body));
+                });
             });
-            stompClient.subscribe('/topic/break', function (eventbody) {
-                showBreak(JSON.parse(eventbody.body));
-            });
-        });
+        }
+
+        function addToQueue() {
+        var name = document.getElementById("nameInput").value;
+        fetch('/queue/add?name=' + name);
+        document.getElementById("nameInput").value = "";
     }
 
-    function addToQueue() {
-    var name = document.getElementById("nameInput").value;
-    fetch('/queue/add?name=' + name);
-    document.getElementById("nameInput").value = "";
-}
+    function addAsSpecial() {
+        var name = document.getElementById("nameInput").value;
+        fetch('/queue/add-special?name=' + name);
+        document.getElementById("nameInput").value = "";
+    }
 
-function addAsSpecial() {
-    var name = document.getElementById("nameInput").value;
-    fetch('/queue/add-special?name=' + name);
-    document.getElementById("nameInput").value = "";
-}
+    function removeFromQueue() {
+        var name = document.getElementById("nameInput").value;
+        fetch('/queue/remove?name=' + name);
+        document.getElementById("nameInput").value = "";
+    }
 
-function removeFromQueue() {
-    var name = document.getElementById("nameInput").value;
-    fetch('/queue/remove?name=' + name);
-    document.getElementById("nameInput").value = "";
-}
+    function removeFirst() {
+        fetch('/queue/removeFirst');
 
-function removeFirst() {
-    fetch('/queue/removeFirst');
+    }
 
-}
-
-function addToBreak() {
-    var name = document.getElementById("nameInput").value;
-    fetch('/queue/break/add?name=' + name);
-    document.getElementById("nameInput").value = "";
-}
-
-function removeFromBreak() {
-    var name = document.getElementById("nameInput").value;
-    fetch('/queue/break/remove?name=' + name);
-    document.getElementById("nameInput").value = "";
-}
+    function addToBreak() {
+        var name = document.getElementById("nameInput").value;
+        fetch('/queue/break/add?name=' + name);
+        document.getElementById("nameInput").value = "";
+    }
 
     function removeFromBreak() {
         var name = document.getElementById("nameInput").value;
-        fetch('/queue/break/remove?name=' + name)
-            .then(response => response.text())
-            .then(data => alert(data));
-
-           document.getElementById("nameInput").value = "";
+        fetch('/queue/break/remove?name=' + name);
+        document.getElementById("nameInput").value = "";
     }
 
-    function showQueue(queue) {
-        var queueList = document.getElementById("queueList");
-        queueList.innerHTML = "";
-        queue.forEach(function (item) {
+        function removeFromBreak() {
+            var name = document.getElementById("nameInput").value;
+            fetch('/queue/break/remove?name=' + name)
+                .then(response => response.text())
+                .then(data => alert(data));
+
+               document.getElementById("nameInput").value = "";
+        }
+
+        function showQueue(queue) {
+            var queueList = document.getElementById("queueList");
+            queueList.innerHTML = "";
+            queue.forEach(function (item) {
+                var li = document.createElement("li");
+                li.appendChild(document.createTextNode(item));
+                queueList.appendChild(li);
+            });
+        }
+
+        function showBreak(breakQueue) {
+        var breakList = document.getElementById("breakList");
+        breakList.innerHTML = "";
+        breakQueue.forEach(function (item) {
             var li = document.createElement("li");
-            li.appendChild(document.createTextNode(item));
-            queueList.appendChild(li);
+            li.textContent = item + " ";
+
+            var button = document.createElement("button");
+            button.textContent = "KOPNIJ";
+            button.onclick = function () {
+                fetch('/queue/break/remove?name=' + item);
+            };
+
+            li.appendChild(button);
+            breakList.appendChild(li);
         });
     }
 
-    function showBreak(breakQueue) {
-    var breakList = document.getElementById("breakList");
-    breakList.innerHTML = "";
-    breakQueue.forEach(function (item) {
-        var li = document.createElement("li");
-        li.textContent = item + " ";
-
-        var button = document.createElement("button");
-        button.textContent = "KOPNIJ";
-        button.onclick = function () {
-            fetch('/queue/break/remove?name=' + item);
+        window.onload = function () {
+            connect();
         };
-
-        li.appendChild(button);
-        breakList.appendChild(li);
-    });
-}
-
-    window.onload = function () {
-        connect();
-    };
-  </script>
+    </script>
 </head>
 <body>
 <h1>Queue Management</h1>
