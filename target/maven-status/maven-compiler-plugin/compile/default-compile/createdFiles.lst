@@ -1,0 +1,3 @@
+com\example\demo\Kolejka2Application.class
+com\example\demo\controller\QueueController.class
+com\example\demo\config\WebSocketConfig.class
