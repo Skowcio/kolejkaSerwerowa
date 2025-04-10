@@ -16,7 +16,6 @@ public class QueueController {
     private final List<String> breakList = new LinkedList<>();
     private final SimpMessagingTemplate messagingTemplate;
 
-
     public QueueController(SimpMessagingTemplate messagingTemplate) {
         this.messagingTemplate = messagingTemplate;
     }
@@ -27,7 +26,6 @@ public class QueueController {
         messagingTemplate.convertAndSend("/topic/queue", queue);
         return name + " added to queue";
     }
-
 
     @GetMapping("/add-special")
     public String addAsSpecial(@RequestParam String name) {
@@ -86,5 +84,17 @@ public class QueueController {
     @GetMapping
     public List<String> getQueue() {
         return queue;
+    }
+
+    // ✅ NOWE ENDPOINTY DLA FRONTENDU PRZY ŁADOWANIU STRONY
+
+    @GetMapping("/all")
+    public List<String> getAllQueue() {
+        return queue;
+    }
+
+    @GetMapping("/break/all")
+    public List<String> getAllBreak() {
+        return breakList;
     }
 }
