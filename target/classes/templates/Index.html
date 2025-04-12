@@ -84,8 +84,17 @@
             });
         }
 
+        // ✅ Tu nowy window.onload — odpala connect + pobiera dane od razu
         window.onload = function () {
             connect();
+
+            fetch('/queue')
+                .then(response => response.json())
+                .then(data => showQueue(data));
+
+            fetch('/queue/break')
+                .then(response => response.json())
+                .then(data => showBreak(data));
         };
     </script>
 </head>

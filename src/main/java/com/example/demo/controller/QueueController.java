@@ -17,36 +17,25 @@ public class QueueController {
     private final BreakRepository breakRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
-    public QueueController(QueueRepository queueRepository,
-                           BreakRepository breakRepository,
-                           SimpMessagingTemplate messagingTemplate) {
+    public QueueController(QueueRepository queueRepository, BreakRepository breakRepository, SimpMessagingTemplate messagingTemplate) {
         this.queueRepository = queueRepository;
         this.breakRepository = breakRepository;
         this.messagingTemplate = messagingTemplate;
     }
 
+    // === KOLEJKA ===
+
     @GetMapping("/add")
     public String addToQueue(@RequestParam String name) {
         queueRepository.save(new QueueEntry(name));
-        updateQueue();
+        sendQueueUpdate();
         return name + " added to queue";
-    }
-
-    @GetMapping("/add-special")
-    public String addAsSpecial(@RequestParam String name) {
-        List<QueueEntry> current = queueRepository.findAll();
-        queueRepository.deleteAll();
-        QueueEntry special = new QueueEntry(name);
-        queueRepository.save(special);
-        queueRepository.saveAll(current);
-        updateQueue();
-        return name + " added as special to front of queue";
     }
 
     @GetMapping("/remove")
     public String removeFromQueue(@RequestParam String name) {
         queueRepository.deleteByName(name);
-        updateQueue();
+        sendQueueUpdate();
         return name + " removed from queue";
     }
 
@@ -56,18 +45,25 @@ public class QueueController {
         if (!all.isEmpty()) {
             QueueEntry first = all.get(0);
             queueRepository.delete(first);
-            updateQueue();
+            sendQueueUpdate();
             return first.getName() + " removed from front of queue";
         } else {
             return "Queue is empty";
         }
     }
 
+    @GetMapping("/all")
+    public List<QueueEntry> getAllQueue() {
+        return queueRepository.findAll();
+    }
+
+    // === PRZERWA ===
+
     @GetMapping("/break/add")
     public String addToBreak(@RequestParam String name) {
         if (breakRepository.findByName(name).isEmpty()) {
             breakRepository.save(new BreakEntry(name));
-            updateBreakList();
+            sendBreakUpdate();
             return name + " added to break list";
         } else {
             return name + " is already on break";
@@ -77,37 +73,22 @@ public class QueueController {
     @GetMapping("/break/remove")
     public String removeFromBreak(@RequestParam String name) {
         breakRepository.deleteByName(name);
-        updateBreakList();
+        sendBreakUpdate();
         return name + " removed from break list";
     }
 
-    @GetMapping
-    public List<QueueEntry> getQueue() {
-        return queueRepository.findAll();
-    }
-
-    @GetMapping("/break")
-    public List<BreakEntry> getBreakList() {
+    @GetMapping("/break/all")
+    public List<BreakEntry> getAllBreak() {
         return breakRepository.findAll();
     }
 
-    @GetMapping("/all")
-    public List<String> getAllQueueNames() {
-        return queueRepository.findAll().stream().map(QueueEntry::getName).toList();
+    // === WYSYŁANIE DO FRONTU ===
+
+    private void sendQueueUpdate() {
+        messagingTemplate.convertAndSend("/topic/queue", queueRepository.findAll());
     }
 
-    @GetMapping("/break/all")
-    public List<String> getAllBreakNames() {
-        return breakRepository.findAll().stream().map(BreakEntry::getName).toList();
-    }
-
-    private void updateQueue() {
-        List<String> names = queueRepository.findAll().stream().map(QueueEntry::getName).toList();
-        messagingTemplate.convertAndSend("/topic/queue", names);
-    }
-
-    private void updateBreakList() {
-        List<String> names = breakRepository.findAll().stream().map(BreakEntry::getName).toList();
-        messagingTemplate.convertAndSend("/topic/break", names);
+    private void sendBreakUpdate() {
+        messagingTemplate.convertAndSend("/topic/break", breakRepository.findAll());
     }
 }

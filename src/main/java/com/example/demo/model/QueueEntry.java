@@ -10,11 +10,22 @@ public class QueueEntry {
 
     private String name;
 
-    public QueueEntry() {}
+    public QueueEntry() {
+    }
 
     public QueueEntry(String name) {
         this.name = name;
     }
 
-    // Gettery i settery
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }
