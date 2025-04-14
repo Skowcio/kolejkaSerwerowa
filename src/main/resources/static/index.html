@@ -61,28 +61,29 @@
         queueList.innerHTML = "";
         queue.forEach(function (item) {
             var li = document.createElement("li");
-            li.appendChild(document.createTextNode(item));
+            li.appendChild(document.createTextNode(item.name));
             queueList.appendChild(li);
         });
     }
 
     function showBreak(breakQueue) {
-        var breakList = document.getElementById("breakList");
-        breakList.innerHTML = "";
-        breakQueue.forEach(function (item) {
-            var li = document.createElement("li");
-            li.textContent = item + " ";
+    var breakList = document.getElementById("breakList");
+    breakList.innerHTML = "";
+    breakQueue.forEach(function (item) {
+        var li = document.createElement("li");
+        li.textContent = item.name + " ";
 
-            var button = document.createElement("button");
-            button.textContent = "KOPNIJ";
-            button.onclick = function () {
-                fetch('/queue/break/remove?name=' + item);
-            };
+        var button = document.createElement("button");
+        button.textContent = "KOPNIJ";
+        button.onclick = function () {
+            fetch('/queue/break/remove?name=' + item.name);
+        };
 
-            li.appendChild(button);
-            breakList.appendChild(li);
-        });
-    }
+        li.appendChild(button);
+        breakList.appendChild(li);
+    });
+}
+
 
     // ✅ Tu nowy window.onload — odpala connect + pobiera dane od razu
     window.onload = function () {

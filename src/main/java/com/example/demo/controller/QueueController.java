@@ -71,12 +71,17 @@ public class QueueController {
     }
 
     @GetMapping("/break/remove")
-    public String removeFromBreak(@RequestParam String name) {
-        breakRepository.deleteByName(name);
-        sendBreakUpdate();
-        return name + " removed from break list";
+    public String removeFromBreak() {
+        List<BreakEntry> all = breakRepository.findAll();
+        if (!all.isEmpty()) {
+            BreakEntry first = all.get(0);
+            breakRepository.delete(first);
+            sendBreakUpdate();
+            return first.getName() + " removed from front of queue";
+        } else {
+            return "Queue is empty";
+        }
     }
-
     @GetMapping("/break/all")
     public List<BreakEntry> getAllBreak() {
         return breakRepository.findAll();
