@@ -52,7 +52,7 @@ public class QueueController {
         }
     }
 
-    @GetMapping("/all")
+    @GetMapping("/")
     public List<QueueEntry> getAllQueue() {
         return queueRepository.findAll();
     }
@@ -82,7 +82,7 @@ public class QueueController {
             return "Queue is empty";
         }
     }
-    @GetMapping("/break/all")
+    @GetMapping("/break/")
     public List<BreakEntry> getAllBreak() {
         return breakRepository.findAll();
     }
