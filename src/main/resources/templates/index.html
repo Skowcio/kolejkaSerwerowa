@@ -67,28 +67,25 @@
         }
 
         function showBreak(breakQueue) {
-        var breakList = document.getElementById("breakList");
-        breakList.innerHTML = "";
-        breakQueue.forEach(function (item) {
-            var li = document.createElement("li");
-            li.textContent = item.name + " ";
+            var breakList = document.getElementById("breakList");
+            breakList.innerHTML = "";
+            breakQueue.forEach(function (item) {
+                var li = document.createElement("li");
+                li.textContent = item.name + " ";
 
-            var button = document.createElement("button");
-            button.textContent = "KOPNIJ";
-            button.onclick = function () {
-                fetch('/queue/break/remove?name=' + item.name);
-            };
+                var button = document.createElement("button");
+                button.textContent = "KOPNIJ";
+                button.onclick = function () {
+                    fetch('/queue/break/remove?name=' + item.name);
+                };
 
-            li.appendChild(button);
-            breakList.appendChild(li);
-        });
-    }
+                li.appendChild(button);
+                breakList.appendChild(li);
+            });
+        }
 
-
-        // ✅ Tu nowy window.onload — odpala connect + pobiera dane od razu
-        window.onload = function () {
-            connect();
-
+        // 🔁 Ręczne odświeżanie
+        function refreshAll() {
             fetch('/queue')
                 .then(response => response.json())
                 .then(data => showQueue(data));
@@ -96,6 +93,17 @@
             fetch('/queue/break')
                 .then(response => response.json())
                 .then(data => showBreak(data));
+        }
+
+        // ✅ window.onload z automatycznym odświeżaniem co 3 sekundy
+        window.onload = function () {
+            connect();
+
+            refreshAll(); // od razu odświeża przy starcie
+
+            setInterval(() => {
+                refreshAll();
+            }, 5000); // co 5 sekundy
         };
     </script>
 </head>
@@ -109,6 +117,8 @@
 <br><br>
 <button onclick="addToBreak()">Dodaj do przerwy</button>
 <button onclick="removeFromBreak()">Zdejmij z przerwy</button>
+<br><br>
+<button onclick="refreshAll()">🔄 Odśwież dane</button>
 
 <h2>Kolejka:</h2>
 <ul id="queueList"></ul>
