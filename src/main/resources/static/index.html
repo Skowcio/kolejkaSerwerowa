@@ -57,6 +57,8 @@
     }
 
     function showQueue(queue) {
+        if (!Array.isArray(queue) || queue.length === 0) return;
+        console.log("Show Queue:", queue);
         var queueList = document.getElementById("queueList");
         queueList.innerHTML = "";
         queue.forEach(function (item) {
@@ -67,6 +69,8 @@
     }
 
     function showBreak(breakQueue) {
+        if (!Array.isArray(breakQueue) || breakQueue.length === 0) return;
+        console.log("Show Break:", breakQueue);
         var breakList = document.getElementById("breakList");
         breakList.innerHTML = "";
         breakQueue.forEach(function (item) {
@@ -84,28 +88,37 @@
         });
     }
 
-    // ✅ Odpala WebSocket i ściąga dane po wejściu
+    // ✅ Odpala WebSocket i pobiera dane na start
     window.onload = function () {
         connect();
 
-        fetch('/queue')
-            .then(response => response.json())
-            .then(data => showQueue(data));
+        // lekkie opóźnienie (żeby WebSocket się połączył zanim wyczyścimy)
+        setTimeout(() => {
+            fetch('/queue')
+                .then(response => response.json())
+                .then(data => showQueue(data));
 
-        fetch('/queue/break')
-            .then(response => response.json())
-            .then(data => showBreak(data));
+            fetch('/queue/break')
+                .then(response => response.json())
+                .then(data => showBreak(data));
+        }, 500);
     };
 
-    // 🔄 Cykliczne odświeżanie co 3 sekundy
+    // 🔄 Odświeżanie co 3 sekundy, z logowaniem
     setInterval(function () {
         fetch('/queue')
             .then(response => response.json())
-            .then(data => showQueue(data));
+            .then(data => {
+                if (data && data.length > 0) showQueue(data);
+                else console.log("Ominięto czyszczenie kolejki – brak danych");
+            });
 
         fetch('/queue/break')
             .then(response => response.json())
-            .then(data => showBreak(data));
+            .then(data => {
+                if (data && data.length > 0) showBreak(data);
+                else console.log("Ominięto czyszczenie przerwy – brak danych");
+            });
     }, 3000);
   </script>
 </head>
