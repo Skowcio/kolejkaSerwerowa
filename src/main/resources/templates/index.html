@@ -84,8 +84,10 @@
             });
         }
 
-        // 🔁 Ręczne odświeżanie
-        function refreshAll() {
+        // ✅ Odpala WebSocket i ściąga dane po wejściu
+        window.onload = function () {
+            connect();
+
             fetch('/queue')
                 .then(response => response.json())
                 .then(data => showQueue(data));
@@ -93,18 +95,18 @@
             fetch('/queue/break')
                 .then(response => response.json())
                 .then(data => showBreak(data));
-        }
-
-        // ✅ window.onload z automatycznym odświeżaniem co 3 sekundy
-        window.onload = function () {
-            connect();
-
-            refreshAll(); // od razu odświeża przy starcie
-
-            setInterval(() => {
-                refreshAll();
-            }, 5000); // co 5 sekundy
         };
+
+        // 🔄 Cykliczne odświeżanie co 3 sekundy
+        setInterval(function () {
+            fetch('/queue')
+                .then(response => response.json())
+                .then(data => showQueue(data));
+
+            fetch('/queue/break')
+                .then(response => response.json())
+                .then(data => showBreak(data));
+        }, 3000);
     </script>
 </head>
 <body>
@@ -117,8 +119,6 @@
 <br><br>
 <button onclick="addToBreak()">Dodaj do przerwy</button>
 <button onclick="removeFromBreak()">Zdejmij z przerwy</button>
-<br><br>
-<button onclick="refreshAll()">🔄 Odśwież dane</button>
 
 <h2>Kolejka:</h2>
 <ul id="queueList"></ul>
