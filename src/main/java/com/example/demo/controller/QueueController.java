@@ -82,6 +82,12 @@ public class QueueController {
             return "Queue is empty";
         }
     }
+    @GetMapping("/break/removeByName")
+    public String removeFromBreakByName(@RequestParam String name) {
+        breakRepository.deleteByName(name);
+        sendBreakUpdate();
+        return name + " removed from break list";
+    }
 
     @GetMapping("/break/all")
     public List<BreakEntry> getAllBreak() {
