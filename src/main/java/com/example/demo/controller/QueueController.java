@@ -82,8 +82,21 @@ public class QueueController {
             return "Queue is empty";
         }
     }
+
     @GetMapping("/break/all")
     public List<BreakEntry> getAllBreak() {
+        return breakRepository.findAll();
+    }
+
+    // === DODATKOWE MAPOWANIA ===
+
+    @GetMapping("")
+    public List<QueueEntry> getDefaultQueue() {
+        return queueRepository.findAll();
+    }
+
+    @GetMapping("/break")
+    public List<BreakEntry> getDefaultBreakQueue() {
         return breakRepository.findAll();
     }
 
