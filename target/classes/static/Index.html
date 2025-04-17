@@ -63,6 +63,16 @@
     var li = document.createElement("li");
     li.textContent = item.name + " ";
 
+<!--    // przycisk GÓRA-->
+<!--    var moveUpBtn = document.createElement("button");-->
+<!--    moveUpBtn.textContent = "UP";-->
+<!--    moveUpBtn.onclick = function () {-->
+<!--      fetch('/queue/moveUp?name=' + encodeURIComponent(item.name))-->
+<!--        .then(res => res.text())-->
+<!--        .then(msg => console.log(msg));-->
+<!--    };-->
+<!--    li.appendChild(moveUpBtn);-->
+
     var button = document.createElement("button");
     button.textContent = "KOPNIJ";
     button.onclick = function () {
@@ -111,7 +121,7 @@
         .then(response => response.json())
         .then(data => showBreak(data));
 
-         // ⬅️ DODANE: automatyczne odświeżanie danych co 10 sekundy
+         // ⬅️ DODANE: automatyczne odświeżanie danych co 3 sekundy
       setInterval(() => {
         fetch('/queue')
           .then(response => response.json())
@@ -120,7 +130,7 @@
         fetch('/queue/break')
           .then(response => response.json())
           .then(data => showBreak(data));
-      }, 10000);
+      }, 3000);
     };
   </script>
 </head>
@@ -128,12 +138,12 @@
 <h1>Queue Management</h1>
 <input type="text" id="nameInput" placeholder="Enter name">
 <button onclick="addToQueue()">dodaj do kolejki</button>
-<button onclick="removeFromQueue()">wypisuje z kolejki</button>
+
 <button onclick="removeFirst()">usuwa pierwszego</button>
 <button onclick="addAsSpecial()">SPECJAL (dodaj pierwszego)</button>
 <br><br>
 <button onclick="addToBreak()">Dodaj do przerwy</button>
-<button onclick="removeFromBreak()">Zdejmij z przerwy</button>
+<!--<button onclick="removeFromBreak()">Zdejmij z przerwy</button>-->
 
 <h2>Kolejka:</h2>
 <ul id="queueList"></ul>

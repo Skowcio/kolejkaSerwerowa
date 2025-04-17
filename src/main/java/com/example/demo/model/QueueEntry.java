@@ -10,12 +10,15 @@ public class QueueEntry {
     private Long id;
 
     private String name;
+// albo tu jest problem
+//    private int position; // dodaj to pole
 
     public QueueEntry() {
     }
 
     public QueueEntry(String name) {
         this.name = name;
+
     }
 
     public Long getId() {
@@ -25,6 +28,14 @@ public class QueueEntry {
     public String getName() {
         return name;
     }
+
+//    public int getPosition() {
+//        return position;
+//    }
+//
+//    public void setPosition(int position) {
+//        this.position = position;
+//    }
 
     public void setName(String name) {
         this.name = name;
