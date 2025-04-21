@@ -29,32 +29,32 @@ public class QueueController {
 
     // === KOLEJKA ===
 
-    @GetMapping("/add")
-    public String addToQueue(@RequestParam String name) {
-        queueRepository.save(new QueueEntry(name));
-        sendQueueUpdate();
-        return name + " added to queue";
-    }
-
 //    @GetMapping("/add")
 //    public String addToQueue(@RequestParam String name) {
-//        // Pobieramy całą kolejkę posortowaną rosnąco po pozycji
-//        List<QueueEntry> allEntries = queueRepository.findAllByOrderByPositionAsc();
-//
-//        // Nowa pozycja to ostatnia + 1, albo 0 jeśli to pierwszy wpis
-//        int newPosition = allEntries.isEmpty() ? 0 : allEntries.get(allEntries.size() - 1).getPosition() + 1;
-//
-//        // Tworzymy nowy wpis z nazwą i pozycją
-//        QueueEntry newEntry = new QueueEntry();
-//        newEntry.setName(name);
-//        newEntry.setPosition(newPosition);
-//
-//        // Zapisujemy do bazy
-//        queueRepository.save(newEntry);
+//        queueRepository.save(new QueueEntry(name));
 //        sendQueueUpdate();
-//
 //        return name + " added to queue";
 //    }
+
+    @GetMapping("/add")
+    public String addToQueue(@RequestParam String name) {
+        // Pobieramy całą kolejkę posortowaną rosnąco po pozycji
+        List<QueueEntry> allEntries = queueRepository.findAllByOrderByPositionAsc();
+
+        // Nowa pozycja to ostatnia + 1, albo 0 jeśli to pierwszy wpis
+        int newPosition = allEntries.isEmpty() ? 0 : allEntries.get(allEntries.size() - 1).getPosition() + 1;
+
+        // Tworzymy nowy wpis z nazwą i pozycją
+        QueueEntry newEntry = new QueueEntry();
+        newEntry.setName(name);
+        newEntry.setPosition(newPosition);
+
+        // Zapisujemy do bazy
+        queueRepository.save(newEntry);
+        sendQueueUpdate();
+
+        return name + " added to queue";
+    }
 
     @GetMapping("/remove")
     public String removeFromQueue(@RequestParam String name) {
@@ -75,36 +75,43 @@ public class QueueController {
             return "Queue is empty";
         }
     }
-//    @GetMapping("/queue/moveUp")
-//    public ResponseEntity<String> moveUp(@RequestParam String name) {
-//        Optional<QueueEntry> entryOpt = queueRepository.findByName(name);
-//        if (entryOpt.isEmpty()) {
-//            return ResponseEntity.badRequest().body("Nie znaleziono");
-//        }
-//
-//        QueueEntry entry = entryOpt.get();
-//        int currentPosition = entry.getPosition();
-//
-//        if (currentPosition == 0) {
-//            return ResponseEntity.ok("Już jest na górze");
-//        }
-//
-//        Optional<QueueEntry> aboveOpt = queueRepository.findByPosition(currentPosition - 1);
-//        if (aboveOpt.isPresent()) {
-//            QueueEntry above = aboveOpt.get();
-//
-//            // zamiana miejsc
-//            above.setPosition(currentPosition);
-//            entry.setPosition(currentPosition - 1);
-//
-//            queueRepository.save(above);
-//            queueRepository.save(entry);
-//
-//            return ResponseEntity.ok("Przesunięto w górę");
-//        } else {
-//            return ResponseEntity.ok("Brak osoby wyżej");
-//        }
-//    }
+    @GetMapping("/moveUp")
+    public ResponseEntity<String> moveUp(@RequestParam String name) {
+        Optional<QueueEntry> currentOpt = queueRepository.findByName(name);
+        if (currentOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("Nie znaleziono takiego wpisu");
+        }
+
+        QueueEntry current = currentOpt.get();
+        int currentPosition = current.getPosition();
+
+        if (currentPosition <= 0) {
+            return ResponseEntity.ok("Już jest na górze");
+        }
+
+        // Znajdujemy osobę dokładnie o pozycję wyżej
+        Optional<QueueEntry> aboveOpt = queueRepository.findByPosition(currentPosition - 1);
+        if (aboveOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("Nie znaleziono osoby powyżej");
+        }
+
+        QueueEntry above = aboveOpt.get();
+
+        // Zamiana miejsc
+        current.setPosition(currentPosition - 1);
+        above.setPosition(currentPosition);
+
+        // Zapisz obie osoby
+        queueRepository.save(current);
+        queueRepository.save(above);
+
+        sendQueueUpdate(); // Jeśli masz websocket
+
+        return ResponseEntity.ok("Przesunięto w górę");
+    }
+
+
+
 
 
     @GetMapping("/all")

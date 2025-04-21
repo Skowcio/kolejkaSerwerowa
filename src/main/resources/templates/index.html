@@ -57,32 +57,55 @@
         }
 
         function showQueue(queue) {
-          var queueList = document.getElementById("queueList");
-          queueList.innerHTML = "";
-          queue.forEach(function (item) {
-            var li = document.createElement("li");
-            li.appendChild(document.createTextNode(item.name));
-            queueList.appendChild(li);
-          });
-        }
+      var queueList = document.getElementById("queueList");
+      queueList.innerHTML = "";
+      queue.forEach(function (item) {
+        var li = document.createElement("li");
+        li.textContent = item.name + " ";
+
+    <!--    // przycisk GÓRA-->
+    <!--    var moveUpBtn = document.createElement("button");-->
+    <!--    moveUpBtn.textContent = "UP";-->
+    <!--    moveUpBtn.onclick = function () {-->
+    <!--      fetch('/queue/moveUp?name=' + encodeURIComponent(item.name))-->
+    <!--        .then(res => res.text())-->
+    <!--        .then(msg => console.log(msg));-->
+    <!--    };-->
+    <!--    li.appendChild(moveUpBtn);-->
+
+        var button = document.createElement("button");
+        button.textContent = "KOPNIJ";
+        button.onclick = function () {
+          fetch('/queue/remove?name=' + encodeURIComponent(item.name))
+            .then(res => res.text())
+            .then(msg => console.log(msg));
+        };
+
+        li.appendChild(button);
+        queueList.appendChild(li);
+      });
+    }
+
 
         function showBreak(breakQueue) {
-          var breakList = document.getElementById("breakList");
-          breakList.innerHTML = "";
-          breakQueue.forEach(function (item) {
-            var li = document.createElement("li");
-            li.textContent = item.name + " ";
+      var breakList = document.getElementById("breakList");
+      breakList.innerHTML = "";
+      breakQueue.forEach(function (item) {
+        var li = document.createElement("li");
+        li.textContent = item.name + " ";
 
-            var button = document.createElement("button");
-            button.textContent = "KOPNIJ";
-            button.onclick = function () {
-              fetch('/queue/break/remove?name=' + item.name);
-            };
+        var button = document.createElement("button");
+        button.textContent = "KOPNIJ";
+        button.onclick = function () {
+          fetch('/queue/break/removeByName?name=' + encodeURIComponent(item.name))
+            .then(res => res.text())
+            .then(msg => console.log(msg));
+        };
 
-            li.appendChild(button);
-            breakList.appendChild(li);
-          });
-        }
+        li.appendChild(button);
+        breakList.appendChild(li);
+      });
+    }
 
         // 🚀 Załaduj dane od razu po wejściu + połącz WebSocket
         window.onload = function () {
@@ -97,6 +120,17 @@
           fetch('/queue/break')
             .then(response => response.json())
             .then(data => showBreak(data));
+
+             // ⬅️ DODANE: automatyczne odświeżanie danych co 3 sekundy
+          setInterval(() => {
+            fetch('/queue')
+              .then(response => response.json())
+              .then(data => showQueue(data));
+
+            fetch('/queue/break')
+              .then(response => response.json())
+              .then(data => showBreak(data));
+          }, 3000);
         };
     </script>
 </head>
@@ -104,12 +138,12 @@
 <h1>Queue Management</h1>
 <input type="text" id="nameInput" placeholder="Enter name">
 <button onclick="addToQueue()">dodaj do kolejki</button>
-<button onclick="removeFromQueue()">wypisuje z kolejki</button>
+
 <button onclick="removeFirst()">usuwa pierwszego</button>
-<button onclick="addAsSpecial()">SPECJAL (dodaj pierwszego)</button>
+<!--<button onclick="addAsSpecial()">SPECJAL (dodaj pierwszego)</button>-->
 <br><br>
 <button onclick="addToBreak()">Dodaj do przerwy</button>
-<button onclick="removeFromBreak()">Zdejmij z przerwy</button>
+<!--<button onclick="removeFromBreak()">Zdejmij z przerwy</button>-->
 
 <h2>Kolejka:</h2>
 <ul id="queueList"></ul>

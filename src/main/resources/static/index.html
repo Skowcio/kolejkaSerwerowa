@@ -17,6 +17,19 @@
         stompClient.subscribe('/topic/break', function (eventbody) {
           showBreak(JSON.parse(eventbody.body));
         });
+
+        // 🎵 Nasłuchuj dźwięku (do ogólnego dźwięku)
+        stompClient.subscribe('/topic/play-sound', function () {
+          var audio = new Audio('/sound.mp3');
+          audio.play();
+        });
+
+        // 🔔 Nasłuchuj osobnego dzwonka
+        stompClient.subscribe('/topic/sound', function (message) {
+          if (message.body === 'play') {
+            document.getElementById('bellSound').play();
+          }
+        });
       });
     }
 
@@ -57,71 +70,65 @@
     }
 
     function showQueue(queue) {
-  var queueList = document.getElementById("queueList");
-  queueList.innerHTML = "";
-  queue.forEach(function (item) {
-    var li = document.createElement("li");
-    li.textContent = item.name + " ";
+      var queueList = document.getElementById("queueList");
+      queueList.innerHTML = "";
+      queue.forEach(function (item) {
+        var li = document.createElement("li");
+        li.textContent = item.name + " ";
 
-<!--    // przycisk GÓRA-->
-<!--    var moveUpBtn = document.createElement("button");-->
-<!--    moveUpBtn.textContent = "UP";-->
-<!--    moveUpBtn.onclick = function () {-->
-<!--      fetch('/queue/moveUp?name=' + encodeURIComponent(item.name))-->
-<!--        .then(res => res.text())-->
-<!--        .then(msg => console.log(msg));-->
-<!--    };-->
-<!--    li.appendChild(moveUpBtn);-->
+<!--        var moveUpBtn = document.createElement("button");-->
+<!--        moveUpBtn.textContent = "UP";-->
+<!--        moveUpBtn.onclick = function () {-->
+<!--          fetch('/queue/moveUp?name=' + encodeURIComponent(item.name))-->
+<!--            .then(res => res.text())-->
+<!--            .then(msg => console.log(msg));-->
+<!--        };-->
+<!--        li.appendChild(moveUpBtn);-->
 
-    var button = document.createElement("button");
-    button.textContent = "KOPNIJ";
-    button.onclick = function () {
-      fetch('/queue/remove?name=' + encodeURIComponent(item.name))
-        .then(res => res.text())
-        .then(msg => console.log(msg));
-    };
+        var button = document.createElement("button");
+        button.textContent = "KOPNIJ";
+        button.onclick = function () {
+          fetch('/queue/remove?name=' + encodeURIComponent(item.name))
+            .then(res => res.text())
+            .then(msg => console.log(msg));
+        };
 
-    li.appendChild(button);
-    queueList.appendChild(li);
-  });
-}
-
+        li.appendChild(button);
+        queueList.appendChild(li);
+      });
+    }
 
     function showBreak(breakQueue) {
-  var breakList = document.getElementById("breakList");
-  breakList.innerHTML = "";
-  breakQueue.forEach(function (item) {
-    var li = document.createElement("li");
-    li.textContent = item.name + " ";
+      var breakList = document.getElementById("breakList");
+      breakList.innerHTML = "";
+      breakQueue.forEach(function (item) {
+        var li = document.createElement("li");
+        li.textContent = item.name + " ";
 
-    var button = document.createElement("button");
-    button.textContent = "KOPNIJ";
-    button.onclick = function () {
-      fetch('/queue/break/removeByName?name=' + encodeURIComponent(item.name))
-        .then(res => res.text())
-        .then(msg => console.log(msg));
-    };
+        var button = document.createElement("button");
+        button.textContent = "KOPNIJ";
+        button.onclick = function () {
+          fetch('/queue/break/removeByName?name=' + encodeURIComponent(item.name))
+            .then(res => res.text())
+            .then(msg => console.log(msg));
+        };
 
-    li.appendChild(button);
-    breakList.appendChild(li);
-  });
-}
+        li.appendChild(button);
+        breakList.appendChild(li);
+      });
+    }
 
-    // 🚀 Załaduj dane od razu po wejściu + połącz WebSocket
     window.onload = function () {
       connect();
 
-      // Załaduj aktualną kolejkę
       fetch('/queue')
         .then(response => response.json())
         .then(data => showQueue(data));
 
-      // Załaduj aktualną przerwę
       fetch('/queue/break')
         .then(response => response.json())
         .then(data => showBreak(data));
 
-         // ⬅️ DODANE: automatyczne odświeżanie danych co 3 sekundy
       setInterval(() => {
         fetch('/queue')
           .then(response => response.json())
@@ -132,18 +139,34 @@
           .then(data => showBreak(data));
       }, 3000);
     };
+
+    // 🎵 Dźwięk ogólny
+    function sendSoundToAll() {
+      fetch('/play-sound');
+    }
+
+    // 🔔 Dzwonek – przez WebSocket
+    function sendRing() {
+      stompClient.send("/app/ring", {}, {});
+    }
   </script>
 </head>
 <body>
 <h1>Queue Management</h1>
 <input type="text" id="nameInput" placeholder="Enter name">
 <button onclick="addToQueue()">dodaj do kolejki</button>
-
 <button onclick="removeFirst()">usuwa pierwszego</button>
-<button onclick="addAsSpecial()">SPECJAL (dodaj pierwszego)</button>
 <br><br>
 <button onclick="addToBreak()">Dodaj do przerwy</button>
-<!--<button onclick="removeFromBreak()">Zdejmij z przerwy</button>-->
+
+<!-- 🎵 PRZYCISK DŹWIĘKU OGÓLNEGO -->
+<!--<br><br>-->
+<!--<button onclick="sendSoundToAll()">Zagraj</button>-->
+
+<!-- 🔔 PRZYCISK DZWONKA -->
+<br><br>
+<button onclick="sendRing()">Dzwonek</button>
+<audio id="bellSound" src="/sound.mp3" preload="auto"></audio>
 
 <h2>Kolejka:</h2>
 <ul id="queueList"></ul>
