@@ -9,7 +9,13 @@ public class SoundController {
 
     @MessageMapping("/ring")
     @SendTo("/topic/sound")
-    public String ringBell() {
-        return "play";
+    public String ringBell1() {
+        return "wezel1";
+    }
+
+    @MessageMapping("/ring2")
+    @SendTo("/topic/sound")
+    public String ringBell2() {
+        return "wezel2";
     }
 }

@@ -18,16 +18,18 @@
           showBreak(JSON.parse(eventbody.body));
         });
 
-        // 🎵 Nasłuchuj dźwięku (do ogólnego dźwięku)
+        // 🎵 Nasłuchuj ogólny dźwięk
         stompClient.subscribe('/topic/play-sound', function () {
           var audio = new Audio('/sound.mp3');
           audio.play();
         });
 
-        // 🔔 Nasłuchuj osobnego dzwonka
+        // 🔔 Nasłuchuj dźwięków z różnych węzłów
         stompClient.subscribe('/topic/sound', function (message) {
-          if (message.body === 'play') {
-            document.getElementById('bellSound').play();
+          if (message.body === 'wezel1') {
+            document.getElementById('bellSound1').play();
+          } else if (message.body === 'wezel2') {
+            document.getElementById('bellSound2').play();
           }
         });
       });
@@ -75,15 +77,6 @@
       queue.forEach(function (item) {
         var li = document.createElement("li");
         li.textContent = item.name + " ";
-
-<!--        var moveUpBtn = document.createElement("button");-->
-<!--        moveUpBtn.textContent = "UP";-->
-<!--        moveUpBtn.onclick = function () {-->
-<!--          fetch('/queue/moveUp?name=' + encodeURIComponent(item.name))-->
-<!--            .then(res => res.text())-->
-<!--            .then(msg => console.log(msg));-->
-<!--        };-->
-<!--        li.appendChild(moveUpBtn);-->
 
         var button = document.createElement("button");
         button.textContent = "KOPNIJ";
@@ -140,33 +133,66 @@
       }, 3000);
     };
 
-    // 🎵 Dźwięk ogólny
+    // 🎵 Ogólny dźwięk
     function sendSoundToAll() {
       fetch('/play-sound');
     }
 
-    // 🔔 Dzwonek – przez WebSocket
+    // 🔔 Dźwięki dla poszczególnych węzłów
     function sendRing() {
       stompClient.send("/app/ring", {}, {});
     }
+
+    function sendRing2() {
+      stompClient.send("/app/ring2", {}, {});
+    }
   </script>
 </head>
+<style>
+  .blue-button {
+    background-color: #2196F3;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .red-button {
+    background-color: #F44336;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .blue-button:hover {
+    background-color: #1976D2;
+  }
+
+  .red-button:hover {
+    background-color: #D32F2F;
+  }
+</style>
 <body>
-<h1>Queue Management</h1>
+<h1>KOLEJKA PBI</h1>
+
 <input type="text" id="nameInput" placeholder="Enter name">
 <button onclick="addToQueue()">dodaj do kolejki</button>
 <button onclick="removeFirst()">usuwa pierwszego</button>
 <br><br>
 <button onclick="addToBreak()">Dodaj do przerwy</button>
 
-<!-- 🎵 PRZYCISK DŹWIĘKU OGÓLNEGO -->
-<!--<br><br>-->
-<!--<button onclick="sendSoundToAll()">Zagraj</button>-->
-
-<!-- 🔔 PRZYCISK DZWONKA -->
+<!-- 🔔 Przycisk dla Wezła 1 -->
 <br><br>
-<button onclick="sendRing()">Dzwonek</button>
-<audio id="bellSound" src="/sound.mp3" preload="auto"></audio>
+<button class="blue-button" onclick="sendRing()">Wezel 1</button>
+<audio id="bellSound1" src="/sound.mp3" preload="auto"></audio>
+
+<!-- 🔔 Przycisk dla Wezła 2 -->
+<br><br>
+<button class="red-button" onclick="sendRing2()">Wezel 2</button>
+<audio id="bellSound2" src="/sound2.mp3" preload="auto"></audio>
 
 <h2>Kolejka:</h2>
 <ul id="queueList"></ul>
