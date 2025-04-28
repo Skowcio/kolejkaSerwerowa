@@ -31,6 +31,9 @@
           } else if (message.body === 'wezel2') {
             document.getElementById('bellSound2').play();
           }
+          else if (message.body === 'TEST') {
+          document.getElementById('bellSound3').play();
+          }
         });
       });
     }
@@ -146,6 +149,10 @@
     function sendRing2() {
       stompClient.send("/app/ring2", {}, {});
     }
+    function sendRing3() {
+      stompClient.send("/app/ring3", {}, {});
+    }
+
   </script>
 </head>
 <style>
@@ -195,6 +202,12 @@
 <br><br>
 <button class="red-button" onclick="sendRing2()">Wezel 2</button>
 <audio id="bellSound2" src="/sound2.mp3" preload="auto"></audio>
+
+<br><br>
+<button class="purple-button" onclick="sendRing3()">TEST</button>
+<audio id="bellSound3" src="/TEST.mp3" preload="auto"></audio>
+
+
 
 <h2>Kolejka:</h2>
 <ul id="queueList"></ul>

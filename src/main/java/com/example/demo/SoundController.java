@@ -18,4 +18,10 @@ public class SoundController {
     public String ringBell2() {
         return "wezel2";
     }
+
+    @MessageMapping("/ring3")
+    @SendTo("/topic/sound")
+    public String ringBell3() {
+        return "TEST";
+    }
 }
